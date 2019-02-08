@@ -13,17 +13,21 @@
 # If tests are run successfully, we deploy to netlify and push the updated images.
 # Both of these steps could be run in parallel
 language: generic
+cache:
+  directories: $HOME/.cache/
 env:
   global:
     - DB_USERNAME='locksmith_test'
     - DB_PASSWORD='password'
     - DB_NAME='locksmith_test'
     - DB_HOSTNAME='db'
+    - CACHE_DIR=$HOME/.cache/
 services:
   - docker
 before_script:
-  - scripts/setup-aws.sh
+  - scripts/load-docker-cache.sh unlock
   - scripts/build-image.sh unlock
+  - scripts/load-docker-cache.sh unlock-integration
   - scripts/build-image.sh unlock-integration
   - scripts/docker-compose-build.sh
 script:
@@ -31,10 +35,11 @@ script:
   - scripts/tests.sh unlock-app
   - scripts/tests.sh locksmith
 #  - scripts/integration-tests.sh
+before_cache:
+  - scripts/save-docker-cache.sh unlock
+  - scripts/save-docker-cache.sh unlock-integration
 after_success:
   - scripts/deploy.sh netlify
-  - scripts/push-image.sh unlock
-  - scripts/push-image.sh unlock-integration
   - scripts/package_locksmith.sh
 after_failure:
   - scripts/docker-compose-log.sh

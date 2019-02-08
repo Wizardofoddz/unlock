@@ -9,16 +9,14 @@ REPO_ROOT=`dirname "$0"`/..
 DOCKERFILE=$REPO_ROOT/docker/$IMAGE_NAME.dockerfile
 ARGS=""
 
-if [ "$DOCKER_REPOSITORY" != "" ]; then
+# if [ "$DOCKER_REPOSITORY" != "" ]; then
 
-  # Check the identity of user
-  aws sts get-caller-identity --output text --query 'Account'
-  if [ $? -eq 0 ]; then
-    IMAGE_CACHE="$DOCKER_REPOSITORY/$IMAGE_NAME:latest"
-    echo "Pulling $IMAGE_CACHE to use as cache for $IMAGE_NAME"
-    docker pull $IMAGE_CACHE;
-    ARGS="$ARGS --cache-from $IMAGE_CACHE"
-  fi
-fi
+#   IMAGE_CACHE="$DOCKER_REPOSITORY/$IMAGE_NAME:latest"
+#   echo "Pulling $IMAGE_CACHE to use as cache for $IMAGE_NAME"
+#   docker pull $IMAGE_CACHE;
+#   ARGS="$ARGS --cache-from $IMAGE_CACHE"
+# fi
+
+ARGS="$ARGS --cache-from $IMAGE_NAME"
 
 docker build -t $IMAGE_NAME -f $DOCKERFILE $ARGS $REPO_ROOT
